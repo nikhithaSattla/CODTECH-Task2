@@ -1,0 +1,114 @@
+#TO REFURBISH OR MAKING CHANGES IN THE EXISTING INVENTORY
+import json
+record={1001:{"NAME":"5 STARS","PRICE":10,"QN":100},
+        1002:{"NAME":"DAIRY MILK","PRICE":20,"QN":50},
+        1003:{"NAME":"MILKY BAR","PRICE":100,"QN":10},
+        1004:{"NAME":"BOURNVILLA","PRICE":70,"QN":140}}
+js=json.dumps(record)
+fd=open("INVENTORY.json","w")
+fd.write(js)
+fd.close()
+#TO CLEAR THE TRANSACTION SALES CSV FILES IF REQUIRED
+fd=open("TRANSACTION SALES.csv","w")
+SE="TIME AND DATE"+","+"NAME"+","+"PHONE"+","+"EMAIL"+","+"PRODUCT PURCHASED"+","+"QUANTITY"+","+"AMOUNT PAID"+"\n"
+fd.write(SE)
+fd.close()
+# import json
+import time
+fd=open("INVENTORY.json","r")
+jsr=fd.read()
+fd.close()
+record =json.loads(jsr)
+fd=open("TRANSACTION SALES.csv","a")
+print("-" * 40, "MENU", "-" * 43)
+for key in record.keys():
+    print("PRODUCT ID:", key, "\t NAME:", record[key]["NAME"].ljust(15), "\t PRICE:", str(record[key]["PRICE"]).ljust(5), "\t QUANTITY AVAILABLE:", record[key]["QN"],"\n")
+print("IF YOU PURCHASE ITEMS WORTH GREATER THAN 5000 , 50% DISCOUNT WILL BE APPLIED !!","\n")    
+print("-" * 40, "----", "-" * 43)
+# Initialize an empty dictionary to store the product IDs and quantities
+id_dct = {}
+# Set a boolean variable to True
+bul = True
+# Prompt the user to input their name
+ui_username = input("ENTER YOUR NAME:")
+print(" ")
+# Prompt the user to input their phone number
+ui_phone = input("ENTER YOUR PHONE NUMBER:")
+print(" ")
+# Prompt the user to input their email address
+ui_email = input("ENTER YOUR MAIL ADDRESS:")
+print(" ")
+# Use a try-except block to handle potential errors
+try:
+    # Create a while loop that runs as long as 'bul' is True
+    while bul == True:
+        # Prompt the user to input the product ID they want to purchase
+        ui_pr = input("ENTER THE PRODUCT ID THAT YOU WANT TO PURCHASE:")
+        print(" ")
+        # Prompt the user to input the quantity of the product they want to purchase
+        ui_qn = int(input("ENTER THE PRODUCT QUANTITY THAT YOU WANT TO PURCHASE:"))
+        print(" ")
+        # Check if the requested quantity is available in the inventory
+        if record[ui_pr]["QN"] >= ui_qn:
+            # If available, add the product ID and quantity to the 'id_dct' dictionary
+            id_dct[ui_pr] = ui_qn
+            # Update the inventory quantity for the purchased product
+            record[ui_pr]["QN"] = record[ui_pr]["QN"] - ui_qn
+        else:
+            # If the requested quantity is not available, handle the scenario
+            if record[ui_pr]["QN"] > 0:
+                # Inform the user about the limited quantity available
+                print("SORRY WE DON'T HAVE ENOUGH QUANTITY.\n")
+                print("WE ONLY HAVE", record[ui_pr]["QN"], "QUANTITY OF THE PRODUCT.\n")
+                # Prompt the user to decide whether to purchase the available quantity
+                f = input("WOULD YOU LIKE TO PURCHASE WHAT WE HAVE (YES/NO):")
+                if f.lower() == 'yes':
+                    # If the user chooses to purchase the available quantity, update 'id_dct' and inventory
+                    id_dct[ui_pr] = record[ui_pr]["QN"]
+                    record[ui_pr]["QN"] = 0
+            else:
+                # If the product is not available in the inventory, inform the user
+                print("SORRY WE DON'T HAVE THAT PRODUCT IN OUR INVENTORY TRY AGAIN LATER PLEASE.\n")
+                print("THANK YOU!\n")
+        # Prompt the user to decide whether to continue purchasing
+        s = input("DO YOU WANT TO CONTINUE (YES/NO):")
+        print("*" * 40, "****", "*" * 43)
+        # If the user chooses not to continue, set 'bul' to False to exit the while loop
+        if s.lower() == 'no':
+            bul = False
+    # Print the bill header
+    print("-" * 40, "BILL", "-" * 43)
+    # Initialize a variable to store the total billing amount
+    total = 0
+    # Iterate through the 'id_dct' dictionary to calculate the total amount and print the bill details
+    for key in id_dct.keys():
+        print("PRODUCT ID:", key, "\t NAME:", record[key]["NAME"].ljust(15), "\t PRICE:Rs", str(record[key]["PRICE"]).ljust(5), "\t QUANTITY:", id_dct[key], "\n")
+        total += record[key]["PRICE"] * id_dct[key]
+    # Print the total billing amount
+    print("-" * 89)
+    print("TOTAL:                                                          Rs", total, "\n")
+    if total>5000:
+        total-=(total*0.5)
+        print("TOTAL AFTER 50% DISCOUNT APPLIED                                Rs",total,"\n")
+    print("18% GST WILL BE APPLIED.")
+    total+=(total*(18/100))
+    print("FINAL BILLING AMOUNT:                                           Rs",total,"\n")
+    # Print the billing time and date
+    print("BILLING TIME AND DATE:", [time.ctime().upper()])
+    s=''
+    v=''
+    for key in id_dct.keys():
+        s+=key+'\t'
+        v+=str(id_dct[key])+'\t'
+    sales=time.ctime().upper()+","+ui_username+","+ui_phone+","+ui_email+","+s[:-1]+","+v[:-1]+","+str(total)+"\n"
+    fd.write(sales)
+    fd.close()
+    # Convert the 'record' dictionary to JSON format and write it to a file
+    js = json.dumps(record)
+    fd = open("INVENTORY.json", "w")
+    fd.write(js)
+    fd.close()
+# Handle the KeyError exception
+except KeyError:
+    print("WE DON'T HAVE THAT PARTICULAR ITEM WITH THAT PRODUCT ID IN OUR INVENTORY.")
+    print("PLEASE TRY AGAIN WITH A VALID ID.")
